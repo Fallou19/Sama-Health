@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sama Health | Mon Portefeuille</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-gray">
+    <!-- Navigation -->
+    <nav class="navbar static">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-heart-pulse"></i></div>
+                <span>Sama<span>Health</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Accueil</a>
+                <a href="hospitals.html">Hôpitaux</a>
+                <a href="profile.html">Profil</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container spacing-lg">
+        <div class="flex-between spacing-md">
+            <h1>Mes Tickets Médicaux</h1>
+            <button class="btn btn-primary" onclick="window.location.href='hospitals.html'">Prendre un ticket <i
+                    class="fas fa-plus"></i></button>
+        </div>
+
+        <div class="wallet-layout">
+            <div class="tickets-container" id="tickets-list-full">
+                <!-- Loaded via JS -->
+            </div>
+
+            <aside class="wallet-sidebar">
+                <div class="card reveal-on-scroll">
+                    <h3>Résumé du Compte</h3>
+                    <div class="wallet-stats">
+                        <div class="w-stat">
+                            <span>Tickets Valides</span>
+                            <strong id="active-count">0</strong>
+                        </div>
+                        <div class="w-stat">
+                            <span>Total Dépensé</span>
+                            <strong>15,000 FCFA</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card info-card bg-primary text-white reveal-on-scroll">
+                    <i class="fas fa-shield-halved fa-2x"></i>
+                    <h4>Paiement Sécurisé</h4>
+                    <p>Vos tickets sont générés de manière unique et sécurisée par blockchain.</p>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Modal QR -->
+    <div id="qr-modal" class="modal-overlay hidden" onclick="closeModal()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="ticket-header-modal">
+                <h2 id="modal-hosp-name">-</h2>
+                <span id="modal-ticket-id">#00000</span>
+            </div>
+            <div class="qr-placeholder" id="modal-qr">
+                <i class="fas fa-qrcode fa-5x"></i>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline btn-block" onclick="window.print()">Imprimer le ticket</button>
+                <button class="btn btn-primary btn-block" onclick="closeModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <i class="fas fa-heart-pulse"></i>
+                <span>Sama<span>Health</span></span>
+            </div>
+            <div class="footer-links">
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="hospitals.html">Hôpitaux</a></li>
+                    <li><a href="profile.html">Portefeuille</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script src="datamanager.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!window.dataManager.state.currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            renderTickets();
+        });
+
+        function renderTickets() {
+            const container = document.getElementById('tickets-list-full');
+            const tickets = window.dataManager.state.tickets || [];
+
+            document.getElementById('active-count').textContent = tickets.length;
+
+            if (tickets.length === 0) {
+                container.innerHTML = `
+                    <div class="card text-center py-80">
+                        <i class="fas fa-ticket-alt fa-3x text-muted mb-20"></i>
+                        <h3>Vous n'avez pas encore de tickets</h3>
+                        <p class="text-muted">Sélectionnez un hôpital pour générer votre premier ticket de consultation.</p>
+                        <a href="hospitals.html" class="btn btn-outline mt-20">Trouver un hôpital</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = tickets.reverse().map(t => {
+                const hospital = window.dataManager.state.hospitals.find(h => h.id === t.hospitalId);
+                return `
+                    <div class="card ticket-modern reveal-on-scroll">
+                        <div class="ticket-left">
+                            <i class="fas fa-hospital-user"></i>
+                        </div>
+                        <div class="ticket-center">
+                            <span class="ticket-tag">Consultation</span>
+                            <h3>${hospital?.name || 'Hôpital'}</h3>
+                            <div class="ticket-info-row">
+                                <span><i class="fas fa-stethoscope"></i> ${t.service}</span>
+                                <span><i class="fas fa-calendar"></i> ${new Date(t.createdAt).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                        <div class="ticket-right">
+                             <span class="ticket-id">#${t.id}</span>
+                             <button class="btn btn-primary btn-sm" onclick="showTicket('${t.id}', '${hospital?.name}')">Afficher QR</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            window.ui.initAnimations();
+        }
+
+        function showTicket(id, hosp) {
+            document.getElementById('modal-hosp-name').textContent = hosp;
+            document.getElementById('modal-ticket-id').textContent = `#${id}`;
+            document.getElementById('qr-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('qr-modal').classList.add('hidden');
+        }
+    </script>
+
+    <style>
+        .wallet-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 32px;
+        }
+
+        .ticket-modern {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 20px;
+            border-left: 6px solid var(--primary);
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .ticket-modern:hover {
+            transform: scale(1.02);
+        }
+
+        .ticket-left {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .ticket-center {
+            flex: 1;
+        }
+
+        .ticket-center h3 {
+            font-size: 1.25rem;
+            margin: 4px 0;
+        }
+
+        .ticket-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ticket-info-row {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .ticket-info-row i {
+            color: var(--primary-light);
+            margin-right: 5px;
+        }
+
+        .ticket-right {
+            text-align: right;
+        }
+
+        .ticket-id {
+            display: block;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .qr-placeholder {
+            background: #f8fafc;
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px dashed #e2e8f0;
+            margin: 20px 0;
+            color: var(--primary);
+        }
+
+        .ticket-header-modal h2 {
+            font-size: 1.5rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .wallet-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .ticket-modern {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .ticket-right {
+                text-align: center;
+            }
+        }
+    </style>
+</body>
+
+</html>

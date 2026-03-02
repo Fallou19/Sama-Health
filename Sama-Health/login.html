@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sama Health | Connexion</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-gray">
+    <nav class="navbar static">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-heart-pulse"></i></div>
+                <span>Sama<span>Health</span></span>
+            </a>
+            <a href="index.html" class="btn btn-outline btn-sm">
+                <i class="fas fa-arrow-left"></i> Accueil
+            </a>
+        </div>
+    </nav>
+
+    <main class="auth-wrapper">
+        <div class="auth-card reveal-on-scroll">
+            <div class="auth-header">
+                <h1>Bon retour !</h1>
+                <p>Connectez-vous pour gérer vos rendez-vous.</p>
+            </div>
+
+            <form id="login-form" class="spacing-md">
+                <div class="form-group">
+                    <label class="form-label">Adresse Email</label>
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" name="email" class="form-input" placeholder="exemple@mail.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="flex-between">
+                        <label class="form-label">Mot de passe</label>
+                        <a href="#" class="form-link small">Oublié ?</a>
+                    </div>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    Se connecter <i class="fas fa-sign-in-alt"></i>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Pas encore de compte ? <a href="signup.html">Inscrivez-vous gratuitement</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="datamanager.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('login-form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const isValid = FormValidator.validate('login-form', {
+                    email: { required: true, email: true },
+                    password: { required: true, min: 6 }
+                });
+
+                if (!isValid) return;
+
+                const formData = new FormData(form);
+                const result = window.dataManager.login(
+                    formData.get('email'),
+                    formData.get('password')
+                );
+
+                if (result.success) {
+                    window.ui.showNotification("Connexion réussie ! Redirection...", "success");
+                    const params = new URLSearchParams(window.location.search);
+                    setTimeout(() => window.location.href = params.get('redirect') || 'index.html', 1500);
+                } else {
+                    window.ui.showNotification(result.message, "error");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

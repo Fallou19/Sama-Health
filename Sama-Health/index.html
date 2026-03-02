@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sama Health | Votre Santé, Simplifiée</title>
+    <!-- SEO -->
+    <meta name="description" content="Sama Health digitalise l'accès aux hôpitaux publics au Sénégal. Prenez rendez-vous, achetez vos tickets et évitez les files d'attente.">
+    <!-- Assets -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="main-nav">
+        <div class="container nav-container">
+            <a href="index.html" class="logo" aria-label="Sama Health Accueil">
+                <div class="logo-icon">
+                    <i class="fas fa-heart-pulse"></i>
+                </div>
+                <span>Sama<span>Health</span></span>
+            </a>
+            
+            <button class="menu-toggle" aria-label="Ouvrir le menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="nav-links">
+                <a href="index.html" class="active">Accueil</a>
+                <a href="hospitals.html">Hôpitaux</a>
+                <a href="appointment.html">Rendez-vous</a>
+                <div class="auth-links">
+                    <!-- Dynamic via script.js -->
+                    <a href="login.html" class="btn btn-outline">Connexion</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <span class="badge">Innovation Médicale au Sénégal</span>
+                    <h1>Digitalisons votreaccès aux <span>soins publics</span></h1>
+                    <p>Fini les attentes interminables. Gérez vos consultations et tickets médicaux en quelques clics, partout et à tout moment.</p>
+                    <div class="hero-actions">
+                        <a href="hospitals.html" class="btn btn-primary btn-lg">
+                            Trouver un hôpital <i class="fas fa-search"></i>
+                        </a>
+                        <a href="#how-it-works" class="btn btn-secondary btn-lg">
+                            Comment ça marche ?
+                        </a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <strong>10+</strong>
+                            <span>Hôpitaux</span>
+                        </div>
+                        <div class="stat-item">
+                            <strong>24/7</strong>
+                            <span>Service</span>
+                        </div>
+                        <div class="stat-item">
+                            <strong>100%</strong>
+                            <span>Sécurisé</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="image-wrapper">
+                        <img src="images/medical-illustration.png" alt="Sama Health Expertise" class="floating">
+                        <div class="floating-card c1">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Ticket Confirmé</span>
+                        </div>
+                        <div class="floating-card c2">
+                            <i class="fas fa-clock"></i>
+                            <span>-75% d'attente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="section features-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Pourquoi nous faire <span>confiance ?</span></h2>
+                    <p>Une solution pensée pour les citoyens, fruit d'une technologie moderne au service de la santé publique.</p>
+                </div>
+                
+                <div class="features-grid">
+                    <div class="card feature-card">
+                        <div class="icon-box primary">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3>Rapidité Absolue</h3>
+                        <p>Prenez vos tickets en moins de 2 minutes et recevez votre confirmation instantanément.</p>
+                    </div>
+                    
+                    <div class="card feature-card">
+                        <div class="icon-box secondary">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>Sécurité Totale</h3>
+                        <p>Vos données de santé et transactions sont protégées par les standards les plus élevés.</p>
+                    </div>
+                    
+                    <div class="card feature-card">
+                        <div class="icon-box accent">
+                            <i class="fas fa-mobile-screen"></i>
+                        </div>
+                        <h3>Mobile First</h3>
+                        <p>Une interface optimisée pour smartphone pour une utilisation fluide en déplacement.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Specialties Preview -->
+        <section class="section specialties-section alternate">
+            <div class="container">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Nos Spécialités</h2>
+                        <p>Accédez aux meilleurs services médicaux disponibles dans nos établissements partenaires.</p>
+                    </div>
+                    <a href="specialties.html" class="btn btn-outline">Voir tout</a>
+                </div>
+                
+                <div class="specialties-grid" id="specialties-container">
+                    <!-- Will be populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section id="how-it-works" class="section">
+            <div class="container">
+                <h2 class="section-title text-center">Votre parcours en <span>3 étapes</span></h2>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">01</div>
+                        <h3>Recherche</h3>
+                        <p>Trouvez l'hôpital le plus proche ou celui proposant la spécialité souhaitée.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">02</div>
+                        <h3>Réservation</h3>
+                        <p>Choisissez votre créneau horaire et achetez votre ticket de consultation.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">03</div>
+                        <h3>Consultation</h3>
+                        <p>Présentez votre QR Code à l'accueil et passez directement en consultation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">
+                     <i class="fas fa-heart-pulse"></i>
+                    <span>Sama<span>Health</span></span>
+                </a>
+                <p>Digitaliser la santé publique pour un accès équitable et rapide aux soins pour tous les Sénégalais.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Plateforme</h4>
+                <ul>
+                    <li><a href="hospitals.html">Hôpitaux</a></li>
+                    <li><a href="specialties.html">Spécialités</a></li>
+                    <li><a href="appointment.html">Rendez-vous</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="help.html">Centre d'aide</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-contact">
+                <h4>Contact</h4>
+                <p><i class="fas fa-envelope"></i> contact@samahealth.sn</p>
+                <p><i class="fas fa-phone"></i> +221 33 123 45 67</p>
+                <p><i class="fas fa-map-marker-alt"></i> Dakar, Sénégal</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 Sama Health. Fait avec passion pour le Sénégal.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="datamanager.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const specialties = [
+                { name: "Pédiatrie", icon: "fa-baby", count: "8 Hôpitaux" },
+                { name: "Cardiologie", icon: "fa-heart-pulse", count: "5 Hôpitaux" },
+                { name: "Gynécologie", icon: "fa-venus", count: "12 Hôpitaux" },
+                { name: "Ophtalmologie", icon: "fa-eye", count: "6 Hôpitaux" }
+            ];
+
+            const container = document.getElementById('specialties-container');
+            specialties.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'card specialty-card';
+                card.innerHTML = `
+                    <div class="icon-circle"><i class="fas ${s.icon}"></i></div>
+                    <h3>${s.name}</h3>
+                    <p>${s.count}</p>
+                    <a href="hospitals.html?specialty=${s.name}" class="link">Voir <i class="fas fa-arrow-right"></i></a>
+                `;
+                container.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>

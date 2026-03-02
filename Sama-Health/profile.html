@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sama Health | Mon Profil</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-gray">
+    <!-- Navigation -->
+    <nav class="navbar static">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-heart-pulse"></i></div>
+                <span>Sama<span>Health</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Accueil</a>
+                <a href="hospitals.html">Hôpitaux</a>
+                <a href="appointment.html">Rendez-vous</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container spacing-lg">
+        <div class="profile-grid">
+            <!-- Sidebar -->
+            <aside class="profile-sidebar card reveal-on-scroll">
+                <div class="user-profile-header">
+                    <div class="avatar-large" id="user-avatar">?</div>
+                    <h2 id="userName">-</h2>
+                    <p id="userEmail">-</p>
+                </div>
+
+                <nav class="profile-nav">
+                    <button class="nav-item active" data-tab="overview">
+                        <i class="fas fa-th-large"></i> Aperçu
+                    </button>
+                    <button class="nav-item" data-tab="appointments">
+                        <i class="fas fa-calendar-check"></i> Mes Rendez-vous
+                    </button>
+                    <button class="nav-item" data-tab="tickets">
+                        <i class="fas fa-ticket-alt"></i> Mes Tickets
+                    </button>
+                    <button class="nav-item" data-tab="settings">
+                        <i class="fas fa-cog"></i> Paramètres
+                    </button>
+                    <div class="nav-divider"></div>
+                    <button class="nav-item logout-item" id="logout-btn-profile">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Content Area -->
+            <div class="profile-content">
+                <!-- Overview Tab -->
+                <div class="tab-pane active" id="overview">
+                    <div class="stats-row">
+                        <div class="stat-card card">
+                            <div class="stat-icon primary"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="stat-info">
+                                <h3 id="count-apt">0</h3>
+                                <p>Rendez-vous</p>
+                            </div>
+                        </div>
+                        <div class="stat-card card">
+                            <div class="stat-icon secondary"><i class="fas fa-ticket-alt"></i></div>
+                            <div class="stat-info">
+                                <h3 id="count-tickets">0</h3>
+                                <p>Tickets Actifs</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card spacing-md">
+                        <div class="card-header">
+                            <h3>Activité Récente</h3>
+                        </div>
+                        <div id="recent-activity" class="activity-list">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointments Tab -->
+                <div class="tab-pane" id="appointments">
+                    <div class="tab-header">
+                        <h2>Mes Rendez-vous</h2>
+                        <a href="appointment.html" class="btn btn-primary btn-sm">Nouveau RDV</a>
+                    </div>
+                    <div id="appointments-list" class="spacing-md">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+
+                <!-- Tickets Tab -->
+                <div class="tab-pane" id="tickets">
+                    <div class="tab-header">
+                        <h2>Mes Tickets Médicaux</h2>
+                    </div>
+                    <div id="tickets-list" class="spacing-md">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div class="tab-pane" id="settings">
+                    <div class="tab-header">
+                        <h2>Paramètres</h2>
+                    </div>
+                    <div class="card spacing-md">
+                        <div class="settings-group">
+                            <h3>Notifications</h3>
+                            <div class="setting-item">
+                                <div>
+                                    <p>Alertes par Email</p>
+                                    <small>Recevoir des rappels pour vos rendez-vous.</small>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <button class="btn btn-outline"
+                                onclick="window.ui.showNotification('Fonctionnalité bientôt disponible', 'info')">Changer
+                                le mot de passe</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="datamanager.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = window.dataManager.state.currentUser;
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Sync Tab from URL
+            const params = new URLSearchParams(window.location.search);
+            const initialTab = params.get('tab');
+            if (initialTab) switchTab(initialTab);
+
+            initProfile();
+            setupTabListeners();
+
+            document.getElementById('logout-btn-profile').addEventListener('click', () => {
+                window.dataManager.logout();
+            });
+        });
+
+        function initProfile() {
+            const user = window.dataManager.state.currentUser;
+            const appointments = window.dataManager.state.appointments || [];
+            const tickets = window.dataManager.state.tickets || [];
+
+            // Info
+            document.getElementById('userName').textContent = user.fullName;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('user-avatar').textContent = user.fullName.charAt(0);
+
+            // Stats
+            document.getElementById('count-apt').textContent = appointments.length;
+            document.getElementById('count-tickets').textContent = tickets.length;
+
+            loadAppointments();
+            loadTickets();
+            loadActivity();
+        }
+
+        function setupTabListeners() {
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.dataset.tab;
+                    if (tabId) switchTab(tabId);
+                });
+            });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+            const btn = document.querySelector(`[data-tab="${tabId}"]`);
+            const pane = document.getElementById(tabId);
+
+            if (btn && pane) {
+                btn.classList.add('active');
+                pane.classList.add('active');
+            }
+        }
+
+        function loadAppointments() {
+            const list = document.getElementById('appointments-list');
+            const data = window.dataManager.state.appointments || [];
+
+            if (data.length === 0) {
+                list.innerHTML = '<div class="empty-msg"><i class="fas fa-calendar-day"></i><p>Aucun rendez-vous prévu.</p></div>';
+                return;
+            }
+
+            list.innerHTML = data.reverse().map(apt => {
+                const hospital = window.dataManager.state.hospitals.find(h => h.id === apt.hospitalId);
+                return `
+                    <div class="card apt-item">
+                        <div class="apt-date">
+                            <strong>${apt.date.split('-')[2]}</strong>
+                            <span>${new Date(apt.date).toLocaleDateString('fr-FR', { month: 'short' })}</span>
+                        </div>
+                        <div class="apt-content">
+                            <h4>${hospital?.name || 'Hôpital'}</h4>
+                            <p>${apt.specialty} • ${apt.time}</p>
+                            <span class="status-badge ${apt.status}">${apt.status === 'confirmed' ? 'Confirmé' : 'En attente'}</span>
+                        </div>
+                        <div class="apt-actions">
+                            <button class="btn btn-icon" title="Détails"><i class="fas fa-info-circle"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadTickets() {
+            const list = document.getElementById('tickets-list');
+            const data = window.dataManager.state.tickets || [];
+
+            if (data.length === 0) {
+                list.innerHTML = '<div class="empty-msg"><i class="fas fa-tags"></i><p>Aucun ticket actif.</p></div>';
+                return;
+            }
+
+            list.innerHTML = data.map(t => {
+                const hospital = window.dataManager.state.hospitals.find(h => h.id === t.hospitalId);
+                return `
+                    <div class="card ticket-item">
+                        <div class="ticket-visual">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <div class="ticket-details">
+                            <div class="flex-between">
+                                <h3>#${t.id}</h3>
+                                <span class="badge">Valide</span>
+                            </div>
+                            <p><strong>Hôpital:</strong> ${hospital?.name}</p>
+                            <p><strong>Service:</strong> ${t.service}</p>
+                            <p><strong>Date:</strong> ${new Date(t.createdAt).toLocaleDateString()}</p>
+                        </div>
+                        <button class="btn btn-outline btn-sm">Afficher QR</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadActivity() {
+            const container = document.getElementById('recent-activity');
+            const appointments = window.dataManager.state.appointments || [];
+
+            if (appointments.length === 0) {
+                container.innerHTML = '<p class="text-muted">Aucune activité récente.</p>';
+                return;
+            }
+
+            container.innerHTML = appointments.slice(-3).reverse().map(apt => `
+                <div class="activity-item">
+                    <div class="icon-small"><i class="fas fa-calendar-check"></i></div>
+                    <div class="activity-text">
+                        <p>Nouveau RDV pris à <strong>${apt.time}</strong></p>
+                        <small>${apt.date}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+
+</html>

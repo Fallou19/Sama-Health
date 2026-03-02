@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sama Health | Prendre RDV</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-gray">
+    <!-- Navigation -->
+    <nav class="navbar static">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-heart-pulse"></i></div>
+                <span>Sama<span>Health</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Accueil</a>
+                <a href="hospitals.html">Hôpitaux</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container spacing-lg">
+        <div class="stepper">
+            <div class="step active" data-step="1">
+                <div class="step-icon">1</div>
+                <span>Hôpital</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="2">
+                <div class="step-icon">2</div>
+                <span>Détails</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="3">
+                <div class="step-icon">3</div>
+                <span>Créneau</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="4">
+                <div class="step-icon">4</div>
+                <span>Confirmation</span>
+            </div>
+        </div>
+
+        <div class="appointment-card card reveal-on-scroll">
+            <!-- Step 1: Hospital -->
+            <div class="appointment-step active" id="step-1">
+                <div class="step-header">
+                    <h2>Choisissez un établissement</h2>
+                    <p>Sélectionnez l'hôpital le plus proche ou adapté à vos besoins.</p>
+                </div>
+                <div class="hospital-grid-picker" id="hospital-picker">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+
+            <!-- Step 2: Details -->
+            <div class="appointment-step" id="step-2">
+                <div class="step-header">
+                    <button class="btn-back" onclick="goToStep(1)"><i class="fas fa-arrow-left"></i></button>
+                    <h2>Détails du rendez-vous</h2>
+                </div>
+                <div class="form-container spacing-md">
+                    <div class="form-group">
+                        <label class="form-label">Service / Spécialité</label>
+                        <select id="apt-specialty" class="form-select">
+                            <!-- Loaded via JS based on hospital -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Motif de consultation</label>
+                        <textarea id="apt-reason" class="form-textarea"
+                            placeholder="Décrivez brièvement vos symptômes ou le motif de votre visite..."></textarea>
+                    </div>
+                    <button class="btn btn-primary btn-block" onclick="goToStep(3)">Continuer <i
+                            class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 3: Slots -->
+            <div class="appointment-step" id="step-3">
+                <div class="step-header">
+                    <button class="btn-back" onclick="goToStep(2)"><i class="fas fa-arrow-left"></i></button>
+                    <h2>Choisissez un créneau</h2>
+                </div>
+                <div class="slots-container spacing-md">
+                    <div class="date-picker-inline" id="date-picker">
+                        <!-- Loaded via JS -->
+                    </div>
+                    <div class="time-grid" id="time-picker">
+                        <!-- Loaded via JS -->
+                    </div>
+                    <button class="btn btn-primary btn-block" id="confirm-slot-btn" disabled
+                        onclick="goToStep(4)">Passer à la confirmation</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Final Summary -->
+            <div class="appointment-step" id="step-4">
+                <div class="step-header">
+                    <button class="btn-back" onclick="goToStep(3)"><i class="fas fa-arrow-left"></i></button>
+                    <h2>Résumé & Confirmation</h2>
+                </div>
+                <div class="summary-box card spacing-md">
+                    <div class="summary-row">
+                        <span class="label">Hôpital</span>
+                        <strong id="sum-hospital">-</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">Spécialité</span>
+                        <strong id="sum-specialty">-</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">Date & Heure</span>
+                        <strong id="sum-datetime">-</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">Patient</span>
+                        <strong id="sum-user">-</strong>
+                    </div>
+
+                    <div class="info-alert">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Votre ticket sera généré instantanément après confirmation.</p>
+                    </div>
+
+                    <button class="btn btn-primary btn-block" onclick="finalSubmit()">Confirmer le Rendez-vous</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="datamanager.js"></script>
+    <script src="script.js"></script>
+    <script>
+        let selectedHospitalId = null;
+        let selectedDate = null;
+        let selectedTime = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check auth
+            if (!window.dataManager.state.currentUser) {
+                window.ui.showNotification("Veuillez vous connecter pour prendre rendez-vous.", "info");
+                setTimeout(() => window.location.href = 'login.html?redirect=appointment.html', 1500);
+                return;
+            }
+
+            loadHospitals();
+
+            // Check URL params
+            const params = new URLSearchParams(window.location.search);
+            const preHospId = params.get('hospitalId');
+            if (preHospId) {
+                selectHospital(parseInt(preHospId));
+                goToStep(2);
+            }
+        });
+
+        function loadHospitals() {
+            const hospitals = window.dataManager.getHospitals();
+            const container = document.getElementById('hospital-picker');
+            container.innerHTML = hospitals.map(h => `
+                <div class="hosp-option ${selectedHospitalId === h.id ? 'active' : ''}" onclick="selectHospital(${h.id})">
+                    <img src="${h.image}" alt="${h.name}">
+                    <div class="hosp-info">
+                        <h3>${h.name}</h3>
+                        <p>${h.city}</p>
+                    </div>
+                     <i class="fas fa-check-circle check"></i>
+                </div>
+            `).join('');
+        }
+
+        function selectHospital(id) {
+            selectedHospitalId = id;
+            const hospital = window.dataManager.state.hospitals.find(h => h.id === id);
+
+            // Update specialty select
+            const specSelect = document.getElementById('apt-specialty');
+            specSelect.innerHTML = hospital.specialties.map(s => `<option value="${s}">${s}</option>`).join('');
+
+            loadHospitals();
+            goToStep(2);
+        }
+
+        function goToStep(step) {
+            document.querySelectorAll('.appointment-step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step-${step}`).classList.add('active');
+
+            document.querySelectorAll('.stepper .step').forEach(s => {
+                const sNum = parseInt(s.dataset.step);
+                s.classList.toggle('active', sNum === step);
+                s.classList.toggle('completed', sNum < step);
+            });
+
+            if (step === 3) initDatePicker();
+            if (step === 4) prepareSummary();
+        }
+
+        function initDatePicker() {
+            const container = document.getElementById('date-picker');
+            const dates = [];
+            const now = new Date();
+
+            for (let i = 1; i < 8; i++) {
+                const d = new Date();
+                d.setDate(now.getDate() + i);
+                dates.push(d);
+            }
+
+            container.innerHTML = dates.map(d => `
+                <div class="date-item ${selectedDate === d.toISOString().split('T')[0] ? 'active' : ''}" 
+                     onclick="selectDate('${d.toISOString().split('T')[0]}')">
+                    <span class="day-name">${d.toLocaleDateString('fr-FR', { weekday: 'short' })}</span>
+                    <span class="day-num">${d.getDate()}</span>
+                </div>
+            `).join('');
+
+            if (selectedDate) loadTimes();
+        }
+
+        function selectDate(date) {
+            selectedDate = date;
+            initDatePicker();
+            loadTimes();
+        }
+
+        function loadTimes() {
+            const container = document.getElementById('time-picker');
+            const times = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
+
+            container.innerHTML = times.map(t => `
+                <div class="time-item ${selectedTime === t ? 'active' : ''}" onclick="selectTime('${t}')">
+                    ${t}
+                </div>
+            `).join('');
+        }
+
+        function selectTime(time) {
+            selectedTime = time;
+            document.getElementById('confirm-slot-btn').disabled = false;
+            loadTimes();
+        }
+
+        function prepareSummary() {
+            const hospital = window.dataManager.state.hospitals.find(h => h.id === selectedHospitalId);
+            const user = window.dataManager.state.currentUser;
+
+            document.getElementById('sum-hospital').textContent = hospital.name;
+            document.getElementById('sum-specialty').textContent = document.getElementById('apt-specialty').value;
+            document.getElementById('sum-datetime').textContent = `${selectedDate} à ${selectedTime}`;
+            document.getElementById('sum-user').textContent = user.fullName;
+        }
+
+        async function finalSubmit() {
+            window.ui.showLoading();
+
+            const appointment = {
+                hospitalId: selectedHospitalId,
+                specialty: document.getElementById('apt-specialty').value,
+                date: selectedDate,
+                time: selectedTime,
+                reason: document.getElementById('apt-reason').value
+            };
+
+            const result = window.dataManager.createAppointment(appointment);
+
+            setTimeout(() => {
+                window.ui.hideLoading();
+                if (result.success) {
+                    window.ui.showNotification("Rendez-vous confirmé !", "success");
+                    setTimeout(() => window.location.href = 'profile.html?tab=appointments', 1500);
+                } else {
+                    window.ui.showNotification(result.message, "error");
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>

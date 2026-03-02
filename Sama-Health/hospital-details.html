@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sama Health | Détails Hôpital</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-gray">
+    <!-- Navigation -->
+    <nav class="navbar static">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-heart-pulse"></i></div>
+                <span>Sama<span>Health</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Accueil</a>
+                <a href="hospitals.html">Hôpitaux</a>
+                <a href="specialties.html">Spécialités</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container spacing-lg">
+        <div class="breadcrumb">
+            <a href="index.html">Accueil</a> <i class="fas fa-chevron-right"></i>
+            <a href="hospitals.html">Hôpitaux</a> <i class="fas fa-chevron-right"></i>
+            <span id="breadcrumb-name">Détails</span>
+        </div>
+
+        <div class="details-layout">
+            <!-- Left Column: Main Info -->
+            <div class="details-main">
+                <div class="card detail-hero-card reveal-on-scroll">
+                    <div class="detail-gallery">
+                        <img id="hosp-img" src="" alt="">
+                        <div class="hosp-type-badge" id="hosp-type">-</div>
+                    </div>
+                    <div class="detail-header-info">
+                        <div class="flex-between">
+                            <h1 id="hosp-name">-</h1>
+                            <div class="hosp-rating">
+                                <i class="fas fa-star"></i>
+                                <span id="hosp-rating">0.0</span>
+                            </div>
+                        </div>
+                        <p class="hosp-location"><i class="fas fa-map-marker-alt"></i> <span id="hosp-address">-</span>
+                        </p>
+
+                        <div class="hosp-features">
+                            <div class="f-item"><i class="fas fa-clock"></i> <span>Ouvert 24h/24</span></div>
+                            <div class="f-item"><i class="fas fa-car"></i> <span>Parking gratuit</span></div>
+                            <div class="f-item"><i class="fas fa-wifi"></i> <span>Wifi Patient</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card spacing-md reveal-on-scroll">
+                    <h3>À propos de l'établissement</h3>
+                    <p id="hosp-desc" class="text-muted">-</p>
+                </div>
+
+                <div class="card reveal-on-scroll">
+                    <h3>Spécialités Disponibles</h3>
+                    <div class="specialties-tags detail-tags" id="hosp-specialties">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Actions & Quick Info -->
+            <aside class="details-sidebar">
+                <div class="card booking-widget reveal-on-scroll">
+                    <h3>Prendre Rendez-vous</h3>
+                    <p class="text-muted">Réservez en ligne pour éviter l'attente en salle.</p>
+                    <div class="waiting-preview">
+                        <i class="fas fa-users-viewfinder"></i>
+                        <div>
+                            <strong>Attente estimée</strong>
+                            <p id="hosp-wait">0 min</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" id="btn-book-now">Réserver un créneau</button>
+                    <button class="btn btn-outline btn-block" id="btn-ticket-now">Prendre un ticket</button>
+                </div>
+
+                <div class="card info-widget reveal-on-scroll">
+                    <h3>Contact & Accès</h3>
+                    <div class="contact-list">
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <strong>Téléphone</strong>
+                                <p id="hosp-phone">-</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <strong>Email</strong>
+                                <p>contact@hopital.sn</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="map-placeholder mt-20">
+                        <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=400&q=80"
+                            alt="Map">
+                        <div class="map-overlay">
+                            <button class="btn btn-secondary btn-sm"><i class="fas fa-directions"></i>
+                                Itinéraire</button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <i class="fas fa-heart-pulse"></i>
+                <span>Sama<span>Health</span></span>
+            </div>
+            <div class="footer-links">
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="hospitals.html">Hôpitaux</a></li>
+                    <li><a href="appointment.html">Rendez-vous</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script src="datamanager.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const hospId = parseInt(params.get('id')) || 1;
+            const hospital = window.dataManager.state.hospitals.find(h => h.id === hospId);
+
+            if (!hospital) {
+                window.location.href = 'hospitals.html';
+                return;
+            }
+
+            renderDetails(hospital);
+
+            document.getElementById('btn-book-now').onclick = () => {
+                window.location.href = `appointment.html?hospitalId=${hospital.id}`;
+            };
+
+            document.getElementById('btn-ticket-now').onclick = () => {
+                if (!window.dataManager.state.currentUser) {
+                    window.ui.showNotification("Veuillez vous connecter pour prendre un ticket.", "info");
+                    return;
+                }
+                const res = window.dataManager.createTicket(hospital.id, "Consultation Générale");
+                if (res.success) {
+                    window.ui.showNotification("Ticket généré ! Retrouvez-le sur votre profil.", "success");
+                    setTimeout(() => window.location.href = 'profile.html?tab=tickets', 1500);
+                }
+            };
+        });
+
+        function renderDetails(h) {
+            document.getElementById('breadcrumb-name').textContent = h.name;
+            document.getElementById('hosp-name').textContent = h.name;
+            document.getElementById('hosp-img').src = h.image;
+            document.getElementById('hosp-img').alt = h.name;
+            document.getElementById('hosp-type').textContent = h.type;
+            document.getElementById('hosp-rating').textContent = h.rating;
+            document.getElementById('hosp-address').textContent = `${h.address}, ${h.city}`;
+            document.getElementById('hosp-phone').textContent = h.phone;
+            document.getElementById('hosp-wait').textContent = `${h.waitingTime} min`;
+            document.getElementById('hosp-desc').textContent = h.description;
+
+            const specs = document.getElementById('hosp-specialties');
+            specs.innerHTML = h.specialties.map(s => `<span class="tag">${s}</span>`).join('');
+        }
+    </script>
+</body>
+
+</html>

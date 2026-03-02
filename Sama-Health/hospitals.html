@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sama Health | Établissements</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-gray">
+    <!-- Navigation -->
+    <nav class="navbar" id="main-nav">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-heart-pulse"></i></div>
+                <span>Sama<span>Health</span></span>
+            </a>
+            <button class="menu-toggle" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="nav-links">
+                <a href="index.html">Accueil</a>
+                <a href="hospitals.html" class="active">Hôpitaux</a>
+                <a href="appointment.html">Rendez-vous</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header compact">
+        <div class="container">
+            <h1>Nos Hôpitaux Partenaires</h1>
+            <p>Trouvez l'expertise médicale dont vous avez besoin, près de chez vous.</p>
+        </div>
+    </header>
+
+    <main class="container spacing-lg">
+        <!-- Search & Filter Bar -->
+        <section class="filter-bar card">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="hospital-search" placeholder="Rechercher par nom, ville ou service...">
+            </div>
+
+            <div class="filters">
+                <select id="specialty-filter" class="form-select">
+                    <option value="all">Toutes les spécialités</option>
+                    <option value="Pédiatrie">Pédiatrie</option>
+                    <option value="Cardiologie">Cardiologie</option>
+                    <option value="Gynécologie">Gynécologie</option>
+                    <option value="Urgences">Urgences</option>
+                    <option value="Radiologie">Radiologie</option>
+                </select>
+
+                <select id="sort-filter" class="form-select">
+                    <option value="name">Trier par Nom</option>
+                    <option value="rating">Trier par Note</option>
+                    <option value="waitingTime">Moins d'attente</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <div class="results-info">
+            <span id="hospital-count">0 hôpitaux trouvés</span>
+        </div>
+
+        <!-- Grid -->
+        <div class="hospitals-grid" id="hospitals-grid">
+            <!-- Dynamic Content -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="no-results" class="empty-state hidden">
+            <i class="fas fa-hospital-slash"></i>
+            <h3>Aucun résultat trouvé</h3>
+            <p>Essayez de modifier vos filtres ou votre recherche.</p>
+            <button class="btn btn-outline" onclick="resetFilters()">Réinitialiser</button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <i class="fas fa-heart-pulse"></i>
+                <span>Sama<span>Health</span></span>
+                <p>Digitaliser la santé publique au Sénégal.</p>
+            </div>
+            <div class="footer-links">
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="hospitals.html">Hôpitaux</a></li>
+                    <li><a href="appointment.html">Rendez-vous</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script src="datamanager.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('hospitals-grid');
+            const searchInput = document.getElementById('hospital-search');
+            const specialtySelect = document.getElementById('specialty-filter');
+            const sortSelect = document.getElementById('sort-filter');
+            const countDisplay = document.getElementById('hospital-count');
+            const noResults = document.getElementById('no-results');
+
+            // Handle URL params
+            const params = new URLSearchParams(window.location.search);
+            const initialSpecialty = params.get('specialty');
+            if (initialSpecialty) specialtySelect.value = initialSpecialty;
+
+            function renderHospitals() {
+                const filters = {
+                    search: searchInput.value,
+                    specialty: specialtySelect.value !== 'all' ? specialtySelect.value : null,
+                    sortBy: sortSelect.value
+                };
+
+                const hospitals = window.dataManager.getHospitals(filters);
+
+                grid.innerHTML = '';
+                countDisplay.textContent = `${hospitals.length} hôpitaux trouvés`;
+
+                if (hospitals.length === 0) {
+                    noResults.classList.remove('hidden');
+                    return;
+                }
+
+                noResults.classList.add('hidden');
+
+                hospitals.forEach(h => {
+                    const card = document.createElement('div');
+                    card.className = 'card hospital-card reveal-on-scroll';
+                    card.innerHTML = `
+                        <div class="hospital-image">
+                            <img src="${h.image}" alt="${h.name}">
+                            <div class="hospital-badge ${h.status === 'open' ? 'status-open' : 'status-closed'}">
+                                ${h.status === 'open' ? 'Ouvert' : 'Fermé'}
+                            </div>
+                        </div>
+                        <div class="hospital-body">
+                            <div class="flex-between">
+                                <h3>${h.name}</h3>
+                                <div class="rating"><i class="fas fa-star"></i> ${h.rating}</div>
+                            </div>
+                            <p class="location"><i class="fas fa-map-marker-alt"></i> ${h.address}, ${h.city}</p>
+                            
+                            <div class="specialties-tags">
+                                ${h.specialties.slice(0, 3).map(s => `<span class="tag">${s}</span>`).join('')}
+                                ${h.specialties.length > 3 ? `<span class="tag">+${h.specialties.length - 3}</span>` : ''}
+                            </div>
+                            
+                            <div class="waiting-info">
+                                <i class="fas fa-clock"></i> Temps d'attente estimé: <strong>${h.waitingTime} min</strong>
+                            </div>
+
+                            <div class="card-actions">
+                                <a href="appointment.html?hospitalId=${h.id}" class="btn btn-primary btn-sm">Prendre RDV</a>
+                                <a href="hospital-details.html?id=${h.id}" class="btn btn-outline btn-sm">Détails</a>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                // Re-trigger animations for new cards
+                window.ui.initAnimations();
+            }
+
+            // Events
+            searchInput.addEventListener('input', renderHospitals);
+            specialtySelect.addEventListener('change', renderHospitals);
+            sortSelect.addEventListener('change', renderHospitals);
+
+            window.resetFilters = () => {
+                searchInput.value = '';
+                specialtySelect.value = 'all';
+                sortSelect.value = 'name';
+                renderHospitals();
+            };
+
+            // Initial load
+            renderHospitals();
+        });
+    </script>
+</body>
+
+</html>

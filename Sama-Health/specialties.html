@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sama Health | Spécialités Médicales</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-gray">
+    <!-- Navigation -->
+    <nav class="navbar static">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-heart-pulse"></i></div>
+                <span>Sama<span>Health</span></span>
+            </a>
+            <button class="menu-toggle" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="nav-links">
+                <a href="index.html">Accueil</a>
+                <a href="hospitals.html">Hôpitaux</a>
+                <a href="specialties.html" class="active">Spécialités</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header compact">
+        <div class="container">
+            <h1>Expertises Médicales</h1>
+            <p>Explorez les services spécialisés disponibles dans le réseau Sama Health.</p>
+        </div>
+    </header>
+
+    <main class="container spacing-lg">
+        <!-- Category Filter -->
+        <div class="category-scroll-container">
+            <div class="category-tabs" id="category-tabs">
+                <button class="tab-item active" data-cat="all">Toutes</button>
+                <button class="tab-item" data-cat="consultation">Consultations</button>
+                <button class="tab-item" data-cat="diagnostic">Diagnostics</button>
+                <button class="tab-item" data-cat="chirurgie">Chirurgie</button>
+                <button class="tab-item" data-cat="maternite">Maternité</button>
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div class="specialties-grid-modern" id="specialties-grid">
+            <!-- Loaded via JS -->
+        </div>
+
+        <section class="booking-cta card spacing-md reveal-on-scroll">
+            <div class="cta-content">
+                <h2>Besoin d'un rendez-vous rapide ?</h2>
+                <p>Trouvez l'expert adapté à votre pathologie et réservez votre créneau en moins de 2 minutes.</p>
+                <a href="appointment.html" class="btn btn-primary">Prendre rendez-vous <i
+                        class="fas fa-calendar-alt"></i></a>
+            </div>
+            <div class="cta-icon">
+                <i class="fas fa-user-md"></i>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <i class="fas fa-heart-pulse"></i>
+                <span>Sama<span>Health</span></span>
+                <p>Le futur de la santé publique au Sénégal.</p>
+            </div>
+            <div class="footer-links">
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="hospitals.html">Hôpitaux</a></li>
+                    <li><a href="appointment.html">Rendez-vous</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script src="datamanager.js"></script>
+    <script src="script.js"></script>
+    <script>
+        const specialties = [
+            { name: "Consultation Générale", cat: "consultation", icon: "fa-stethoscope", desc: "Suivi médical régulier et diagnostics courants." },
+            { name: "Pédiatrie", cat: "consultation", icon: "fa-baby", desc: "Spécialité dédiée à la santé des enfants et nourrissons." },
+            { name: "Cardiologie", cat: "consultation", icon: "fa-heart-pulse", desc: "Soins du cœur et du système cardio-vasculaire." },
+            { name: "Radiologie", cat: "diagnostic", icon: "fa-x-ray", desc: "Imagerie médicale par rayons X, IRM et scanners." },
+            { name: "Gynécologie", cat: "maternite", icon: "fa-venus", desc: "Suivi de la femme, grossesse et accouchements." },
+            { name: "Ophtalmologie", cat: "consultation", icon: "fa-eye", desc: "Soins des yeux et correction de la vision." },
+            { name: "Dermatologie", cat: "consultation", icon: "fa-allergies", desc: "Traitement des pathologies de la peau." },
+            { name: "Chirurgie Générale", cat: "chirurgie", icon: "fa-scalpel-path", desc: "Interventions chirurgicales courantes." },
+            { name: "Laboratoire", cat: "diagnostic", icon: "fa-flask", desc: "Analyses de sang et prélèvements biologiques." }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSpecialties('all');
+
+            document.querySelectorAll('.tab-item').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    renderSpecialties(tab.dataset.cat);
+                });
+            });
+        });
+
+        function renderSpecialties(cat) {
+            const grid = document.getElementById('specialties-grid');
+            const filtered = cat === 'all' ? specialties : specialties.filter(s => s.cat === cat);
+
+            grid.innerHTML = filtered.map(s => `
+                <div class="card specialty-card-modern reveal-on-scroll" onclick="window.location.href='hospitals.html?specialty=${s.name}'">
+                    <div class="icon-header">
+                        <div class="icon-circle"><i class="fas ${s.icon}"></i></div>
+                    </div>
+                    <h3>${s.name}</h3>
+                    <p>${s.desc}</p>
+                    <div class="card-footer">
+                        <span>Voir les hôpitaux</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            `).join('');
+
+            window.ui.initAnimations();
+        }
+    </script>
+</body>
+
+</html>
